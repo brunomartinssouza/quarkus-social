@@ -1,6 +1,10 @@
 package io.github.brunomartinssouza.quarkussocial.rest;
 
+import io.github.brunomartinssouza.quarkussocial.domain.model.User;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.CreateUserRequest;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 
 
@@ -13,12 +17,21 @@ import jakarta.ws.rs.core.Response;
 public class UserResource {
 
     @POST
+    @Transactional
     public Response createUser(CreateUserRequest userRequest){
-        return Response.ok(userRequest).build();
+
+        User user = new User();
+        user.setAge(userRequest.getAge());
+        user.setName(userRequest.getName());
+
+        user.persist();
+
+        return Response.ok(user).build();
     }
 
     @GET
     public Response listAllUsers(){
-        return Response.ok().build();
+        PanacheQuery<PanacheEntityBase> query = User.findAll();
+        return Response.ok(query.list()).build();
     }
 }
