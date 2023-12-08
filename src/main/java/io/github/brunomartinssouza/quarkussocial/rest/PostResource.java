@@ -58,7 +58,7 @@ public class PostResource {
                 .map(PostResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        return  Response.ok(postResponseList).build();
+        return Response.ok(postResponseList).build();
     }
 
 
