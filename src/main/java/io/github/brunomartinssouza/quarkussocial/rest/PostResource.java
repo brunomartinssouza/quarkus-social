@@ -2,6 +2,7 @@ package io.github.brunomartinssouza.quarkussocial.rest;
 
 import io.github.brunomartinssouza.quarkussocial.domain.model.Post;
 import io.github.brunomartinssouza.quarkussocial.domain.model.User;
+import io.github.brunomartinssouza.quarkussocial.domain.repository.FollowerRepository;
 import io.github.brunomartinssouza.quarkussocial.domain.repository.PostRepository;
 import io.github.brunomartinssouza.quarkussocial.domain.repository.UserRepository;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.CreatePostRequest;
@@ -28,6 +29,9 @@ public class PostResource {
     @Inject
     PostRepository postRepository;
 
+    @Inject
+    FollowerRepository followerRepository;
+
     @POST
     @Transactional
     public Response savePost(@PathParam("userId") Long userId, CreatePostRequest request){
@@ -45,13 +49,27 @@ public class PostResource {
     }
 
     @GET
-    public Response listPost(@PathParam("userId") Long userId){
-        User user = userRepository.findById(userId);
-        if (user == null){
-            return Response.status(Response.Status.NOT_FOUND).build();
+    public Response listPost(@PathParam("userId") Long userId, @HeaderParam("followerId") Long followerId){
+
+        if (null == followerId){
+            return Response.status(Response.Status.BAD_REQUEST).entity("You forgot the header followerId").build();
         }
-        PanacheQuery<Post> query = postRepository
-                .find("user", Sort.by("dateTime", Sort.Direction.Descending), user);
+
+        User user = userRepository.findById(userId);
+        User follower = userRepository.findById(followerId);
+
+
+        if (null == user || null == follower){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Inexistent user or Follower").build();
+        }
+
+        boolean follows = followerRepository.follows(follower, user);
+
+        if (!follows){
+            return Response.status(Response.Status.FORBIDDEN).entity("You can't see these posts").build();
+        }
+
+        var query = postRepository.find("user", Sort.by("dateTime", Sort.Direction.Descending), user);
         var list = query.list();
 
         var postResponseList = list.stream()
