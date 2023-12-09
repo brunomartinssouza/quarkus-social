@@ -17,7 +17,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.stream.Collectors;
 
-@Transactional
 @ApplicationScoped
 public class PostService {
 
@@ -30,9 +29,10 @@ public class PostService {
     @Inject
     FollowerRepository followerRepository;
 
+    @Transactional
     public Response savePost(Long userId, CreatePostRequest request){
         User user = userRepository.findById(userId);
-        
+
         if (user == null){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
