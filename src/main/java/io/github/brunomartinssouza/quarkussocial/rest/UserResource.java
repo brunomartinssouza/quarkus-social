@@ -2,6 +2,7 @@ package io.github.brunomartinssouza.quarkussocial.rest;
 
 import io.github.brunomartinssouza.quarkussocial.domain.model.User;
 import io.github.brunomartinssouza.quarkussocial.domain.repository.UserRepository;
+import io.github.brunomartinssouza.quarkussocial.domain.services.UserService;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.CreateUserRequest;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.ResponseError;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -24,62 +25,27 @@ import java.util.Set;
 public class UserResource {
 
     @Inject
-    UserRepository userRepository;
-
-    @Inject
-    Validator validate;
+    UserService UserService;
 
     @POST
-    @Transactional
     public Response createUser(CreateUserRequest userRequest){
-
-        Set<ConstraintViolation<CreateUserRequest>> violations = this.validate.validate(userRequest);
-        if(!violations.isEmpty()){
-           return ResponseError
-                   .createFromValidation(violations)
-                   .withStatusCode(ResponseError.UNPROCESSABLE_ENTITY_STATUS);
-        }
-
-        User user = new User();
-        user.setAge(userRequest.getAge());
-        user.setName(userRequest.getName());
-
-        userRepository.persist(user);
-
-        return Response
-                .status(Response.Status.CREATED.getStatusCode())
-                .entity(user)
-                .build();
+        return UserService.createUser(userRequest);
     }
 
     @GET
     public Response listAllUsers(){
-        PanacheQuery<User> query = userRepository.findAll();
-        return Response.ok(query.list()).build();
+        return UserService.listAllUsers();
     }
 
     @DELETE
     @Path("{id}")
-    @Transactional
     public Response deleteUser(@PathParam("id") Long id){
-        User user = userRepository.findById(id);
-        if(user != null){
-            userRepository.delete(user);
-            return Response.noContent().build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return UserService.deleteUser(id);
     }
 
     @PUT
     @Path("{id}")
-    @Transactional
     public Response updateUser(@PathParam("id") Long id, CreateUserRequest userData){
-        User user = userRepository.findById(id);
-        if(user != null){
-            user.setName(userData.getName());
-            user.setAge(userData.getAge());
-            return Response.noContent().build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return UserService.updateUser(id, userData);
     }
 }
