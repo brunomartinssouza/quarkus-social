@@ -29,6 +29,7 @@ public class UserResource {
 
     @POST
     public Response createUser(CreateUserRequest userRequest){
+
         return UserService.createUser(userRequest);
     }
 
