@@ -2,6 +2,7 @@ package io.github.brunomartinssouza.quarkussocial.rest;
 
 import io.github.brunomartinssouza.quarkussocial.rest.dto.CreateUserRequest;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.ResponseError;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -18,10 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestHTTPEndpoint(UserResource.class)
 class UserResourceTest {
-
-    @TestHTTPResource("/users")
-    URL apiURL;
 
     @Test
     @DisplayName("Should create an user successfully")
@@ -36,7 +35,7 @@ class UserResourceTest {
                         .contentType(ContentType.JSON)
                         .body(user)
                         .when()
-                        .post(apiURL)
+                        .post()
                         .then()
                         .extract().response();
 
@@ -57,7 +56,7 @@ class UserResourceTest {
                         .contentType(ContentType.JSON)
                         .body(user)
                         .when()
-                        .post(apiURL)
+                        .post()
                         .then()
                         .extract().response();
 
@@ -80,7 +79,7 @@ class UserResourceTest {
         given()
                 .contentType(ContentType.JSON)
                 .when()
-                .get(apiURL)
+                .get()
                 .then()
                 .statusCode(200)
                 .body("size()", Matchers.is(1));
