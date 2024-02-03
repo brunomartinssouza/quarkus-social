@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ class PostResourceTest {
     @Inject
     UserRepository userRepository;
     Long userId;
+    Long inexistentUserId = 999l;
 
     @BeforeEach
     @Transactional
@@ -57,8 +59,6 @@ class PostResourceTest {
         var postRequest = new CreatePostRequest();
         postRequest.setText("Some test");
 
-        var inexistentUserId = 999;
-
         given()
             .contentType(ContentType.JSON)
             .body(postRequest)
@@ -68,5 +68,53 @@ class PostResourceTest {
         .then()
             .statusCode(404);
     }
+
+    @Test
+    @DisplayName("should return 404 when user doesn't exist")
+    public void listPostUserNotFoundTest(){
+
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("userId", inexistentUserId)
+        .when()
+            .get()
+        .then()
+            .statusCode(404);
+
+    }
+
+   @Test
+    @DisplayName("should return 400 when followerId Header is not present")
+    public void listPostFollowerHeaderNotSendTest(){
+
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("userId", userId)
+        .when()
+            .get()
+        .then()
+            .statusCode(400)
+            .body(Matchers.is("You forgot the header followerId"));
+
+    }
+
+    @Test
+    @DisplayName("should return 400 when follower doesn't exist")
+    public void listPostFollowerNotFoundTest(){
+
+        var inexistentFollowerId = 999;
+
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("userId", userId)
+            .header("followerId",inexistentFollowerId)
+        .when()
+            .get()
+        .then()
+            .statusCode(404)
+            .body(Matchers.is("Inexistent Follower"));
+
+    }
+
 
 }

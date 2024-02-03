@@ -47,15 +47,19 @@ public class PostService {
 
     public Response listPost(Long userId, Long followerId){
 
+        User user = userRepository.findById(userId);
+        if (null == user){
+            return Response.status(Response.Status.NOT_FOUND).entity("Inexistent user").build();
+        }
+
         if (null == followerId){
             return Response.status(Response.Status.BAD_REQUEST).entity("You forgot the header followerId").build();
         }
 
-        User user = userRepository.findById(userId);
         User follower = userRepository.findById(followerId);
 
-        if (null == user || null == follower){
-            return Response.status(Response.Status.BAD_REQUEST).entity("Inexistent user or Follower").build();
+        if (null == follower){
+            return Response.status(Response.Status.NOT_FOUND).entity("Inexistent Follower").build();
         }
 
         boolean follows = followerRepository.follows(follower, user);
