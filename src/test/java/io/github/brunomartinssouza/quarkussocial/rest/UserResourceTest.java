@@ -3,14 +3,11 @@ package io.github.brunomartinssouza.quarkussocial.rest;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.CreateUserRequest;
 import io.github.brunomartinssouza.quarkussocial.rest.dto.ResponseError;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
